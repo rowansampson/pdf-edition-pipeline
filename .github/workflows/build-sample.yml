@@ -1,0 +1,26 @@
+name: build-sample
+
+on:
+  push:
+    paths: ['sample/**', '.github/workflows/**']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependency
+        run: pip install reportlab
+      - name: Build the sample journal
+        run: python3 sample/build_journal_pdf.py --issue "Vol. 01" --output journal.pdf
+      - name: Verify output
+        run: |
+          test -s journal.pdf && echo "journal.pdf generated ($(stat -c%s journal.pdf) bytes)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: peoples-register-sample
+          path: journal.pdf
